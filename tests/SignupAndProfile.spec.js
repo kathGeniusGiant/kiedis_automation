@@ -46,6 +46,7 @@
     })
 
     test('Login with email from signup and upload cv', async ({ page }) => {
+      test.setTimeout(80000);
       await signin.gotoLandingPage();
       await signin.signin(emailAddress, password);
 

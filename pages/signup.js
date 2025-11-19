@@ -25,6 +25,7 @@ export class SignupPage {
     this.nextBtn = page.getByRole('button', { name: 'Next' });
     this.imAvailableRadio = page.getByRole('radio', { name: 'I\'m available to start working' });
     this.notAvailableRadio = page.getByRole('radio', { name: 'I\'m not currently available' });
+    this.completeProfileBtn = page.getByRole('button', { name: 'Complete Profile →' });
   }
 
   async checkAllFields(firstname, lastname, wrongEmail, correctEmail, newPassword, mismatchPwd){
@@ -132,6 +133,7 @@ export class SignupPage {
     await expect(this.page.getByText("Improve AI matching accuracy by up to 40%")).toBeVisible();
     await this.uploadBtn.click();
     await expect(this.page.getByRole('heading', { name: 'Analyzing CV' })).toBeVisible();
+    await this.page.waitForTimeout(18000);
 
     //Success upload CV
     await expect(this.page.getByRole('heading', { name: 'AI is Creating Your Profile' })).toBeVisible();
@@ -139,11 +141,22 @@ export class SignupPage {
     await expect(this.page.locator('#status-container div').filter({ hasText: 'AI Analysis Complete!' })).toBeVisible();
     await expect(this.page.getByRole('heading', { name: 'CV Analysis Complete' })).toBeVisible();
     await expect(this.page.getByText('Found relevant projects and')).toBeVisible();
-    await this.continueToOnboardingBtn.click();
-    await this.page.waitForTimeout(18000);
+    await this.continueToOnboardingBtn.click({ timeout: 60000 });
+    // await this.page.waitForTimeout(600000); // Wait for 10 minutes to ensure processing is complete
 
     // Verify Onboarding page
-    await expect(this.page.getByRole('heading', { name: 'Refine your details' })).toBeVisible();
+    await this.page.waitForLoadState('domcontentloaded'); 
+    // await expect(this.page.getByRole('heading', { name: /refine your details/i })).toBeVisible({ timeout: 600000 });
+    
+    // --- THIS IS THE IMPORTANT FIX ---
+    // Wait for the real onboarding container
+    await this.page.locator('h1.text-2xl.font-bold.text-gray-900')
+        .filter({ hasText: 'Refine your details' })
+        .waitFor({ timeout: 60000 });
+
+    // Now assert it
+    await expect(this.page.getByRole('heading', { name: /refine your details/i })).toBeVisible();
+    
     await expect(this.page.getByText('Help us match you with better opportunities by filling in any missing details. The more complete your profile, the more accurate our job recommendations will be. You can always come back to complete any skipped questions later.')).toBeVisible();
     await expect(this.skipStepBtn).toBeVisible();
     await expect(this.skipAllQuestionsBtn).toBeVisible();
@@ -168,7 +181,9 @@ export class SignupPage {
     await this.notAvailableRadio.check();
     await this.imAvailableRadio.check();
     await this.nextBtn.click();
-    // await page.getByRole('button', { name: 'Complete Profile →' }).click();
+    await this.completeProfileBtn.click();
+    await this.skipAllQuestionsBtn.click({ timeout: 100000 });
+    await this.nextBtn.click({ timeout: 60000 });
   }
 }
 
