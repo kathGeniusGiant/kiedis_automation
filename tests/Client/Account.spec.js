@@ -1,9 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { SigninPage } from '../pages/signin.js';
-import { AccountPage } from '../pages/account.js';
-import { getEmail, getConfirmationLink, createInbox } from '../pages/storeEmail.js';
+import { SigninPage } from '../../pages/signin.js';
+import { AccountPage } from '../../pages/Client/account.js';
 
-const TEST_EMAIL = 'qaautomation@yopmail.com';
+const TEST_EMAIL = 'qacompany@yopmail.com';
 const TEST_PASSWORD = 'Test@123';
 const NEW_PASSWORD = 'NewTest@123';
 const WEAK_PASSWORD = 'WeakPwd';

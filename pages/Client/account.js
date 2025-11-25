@@ -7,7 +7,7 @@ export class AccountPage {
   constructor(page) {
     this.page = page;
     this.newEmail = 'anotheremail@yopmail.com';
-    this.existingEmail = 'qaautomation@yopmail.com';
+    this.existingEmail = 'qacompany@yopmail.com';
     this.invalidEmail = 'invalidemailformat';
 
     this.linkAccount = page.getByRole('link', { name: 'Account' });
@@ -21,8 +21,8 @@ export class AccountPage {
     this.accountActionsHeading = page.getByText('Account Actions');
 
     // Account info values (we check for presence of labels and the values may vary)
-    this.firstNameLabel = page.getByText('First Name: QA');
-    this.lastNameLabel = page.getByText('Last Name: Automation');
+    this.firstNameLabel = page.getByText('First Name: Qa');
+    this.lastNameLabel = page.getByText('Last Name: Company');
     this.dateJoinedLabel = page.getByText('Date Joined');
 
     // Email row badges and input
@@ -78,6 +78,7 @@ export class AccountPage {
   }
 
   async addAnotherEmailBlankFields() {
+    // const mailslurp = new MailSlurp({ apiKey: process.env.MAILSLURP_API_KEY });
     //Empty field validation
     await this.addNewEmailBtn.click();
     let validationMsg = await this.newEmailInput.evaluate(el => el.validationMessage);
@@ -116,38 +117,39 @@ export class AccountPage {
 
     // Verify success message or updated UI
     await expect(this.removeConfirmation).toBeVisible();
+    // await newTab.close();
   }
 
   async addAnotherEmail() {
-    const mailslurp = new MailSlurp({ apiKey: process.env.MAILSLURP_API_KEY });
-    // --- 4. Create a new temporary MailSlurp email ---
-    const inbox = await mailslurp.createInbox();
-    const tempEmail = inbox.emailAddress;
+      const mailslurp = new MailSlurp({ apiKey: process.env.MAILSLURP_API_KEY });
+      // --- 4. Create a new temporary MailSlurp email ---
+      const inbox = await mailslurp.createInbox();
+      const tempEmail = inbox.emailAddress;
+  
+      // Fill the new email in your app
+      await this.newEmailInput.fill(tempEmail);
+      await this.addNewEmailBtn.click();
+  
+      // Wait for confirmation email
+      const email = await mailslurp.waitForLatestEmail(inbox.id, 30000); // wait up to 30s
+      const verificationLinkMatch = email.body.match(/https?:\/\/[^\s]+/);
+      if (!verificationLinkMatch) throw new Error("Verification link not found in email.");
+      const verificationLink = verificationLinkMatch[0];
+  
+      // Open the verification link in a new tab
+      //const newTab = await this.page.context().newPage();
+      await this.page.goto(verificationLink);
+  
+      await expect(this.page.getByText(`You have confirmed ${tempEmail}`)).toBeVisible();
+      await this.linkAccount.click();
+      await expect(this.page.getByText('Verified').first()).toBeVisible();
+      await expect(this.page.getByRole('button', { name: 'Make Primary' })).toBeVisible();
+      await this.page.getByRole('button', { name: 'Make Primary' }).click();
+      await expect(this.page.getByText('Primary email address set.')).toBeVisible();
+      await expect(this.page.getByText('Primary', { exact: true })).toBeVisible();
+      await this.page.getByRole('button', { name: 'Make Primary' }).click();
 
-    // Fill the new email in your app
-    await this.newEmailInput.fill(tempEmail);
-    await this.addNewEmailBtn.click();
-
-    // Wait for confirmation email
-    const email = await mailslurp.waitForLatestEmail(inbox.id, 30000); // wait up to 30s
-    const verificationLinkMatch = email.body.match(/https?:\/\/[^\s]+/);
-    if (!verificationLinkMatch) throw new Error("Verification link not found in email.");
-    const verificationLink = verificationLinkMatch[0];
-
-    // Open the verification link in a new tab
-    //const newTab = await this.page.context().newPage();
-    await this.page.goto(verificationLink);
-
-    await expect(this.page.getByText(`You have confirmed ${tempEmail}`)).toBeVisible();
-    await this.linkAccount.click();
-    await expect(this.page.getByText('Verified').first()).toBeVisible();
-    await expect(this.page.getByRole('button', { name: 'Make Primary' })).toBeVisible();
-    await this.page.getByRole('button', { name: 'Make Primary' }).click();
-    await expect(this.page.getByText('Primary email address set.')).toBeVisible();
-    await expect(this.page.getByText('Primary', { exact: true })).toBeVisible();
-    await this.page.getByRole('button', { name: 'Make Primary' }).click();
-
-    // Accept the native confirm dialog
+      // Accept the native confirm dialog
       this.page.once('dialog', dialog => dialog.accept());
 
       // Click the Remove button
@@ -156,7 +158,7 @@ export class AccountPage {
       // Verify success message or updated UI
       
       await this.page.getByText(`Removed email address ${tempEmail}`).click();
-  }
+    }
 
   async blankFields(currentPasswordInput, newPasswordInput, confirmNewPasswordInput, mismatchPwd, weakPwd1, weakPwd2) {
     let validationMsg;

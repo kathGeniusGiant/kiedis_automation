@@ -19,7 +19,7 @@
   const fileInput = 'input[type="file"]';
   const resumeFilePath = 'C:/Users/LENOVO/Documents/auto_resume.pdf';
 
-  test.describe('Signup and Profile page', () => {
+  test.describe('Signup page', () => {
 
     let signup;
     let signin;
@@ -32,6 +32,10 @@
       // signin = new SigninPage(page);
       await page.setViewportSize({ width: 1370, height: 735 });
       await signup.gotoSignUpPage();
+    });
+
+    test('Verify elements in Signup page', async ({ page }) => {
+      await signup.verifyElements();
     });
 
     test('Check validation error for empty input, wrong email and password mismatch', async ({ page }) => {

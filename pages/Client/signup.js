@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 
-export class SignupPage {
+export class clientSignupPage {
   constructor(page) {
     this.page = page;
 
@@ -8,14 +8,16 @@ export class SignupPage {
     this.firstname = page.getByPlaceholder('Enter your first name');
     this.lastname = page.getByPlaceholder('Enter your last name');
     this.email = page.getByRole('textbox', { name: 'Email *' });
-    this.jobTitle = page.getByPlaceholder('Enter your job title');
+    this.companyName = page.getByPlaceholder('Enter your company name');
     this.newPassword = page.getByPlaceholder('New password');
     this.confirmPassword = page.getByPlaceholder('Confirm password');
     this.termsCheckbox = page.getByRole('checkbox', { name: 'I agree to the Terms and Conditions' });
     this.privacyCheckbox = page.getByRole('checkbox', { name: 'I agree to the Privacy Policy' });
-    this.createButton = page.getByRole('button', {name: 'Create Freelancer Account'})
+    this.SignUpBtn = page.getByRole('button', { name: 'Sign up', exact: true });
+    this.signUpURLC = 'https://test.kiedis.com/en/accounts/signup/client/';
+
+
     this.uploadBtn = page.getByRole('button', { name: 'Upload' });
-    this.signUpURLF = 'https://test.kiedis.com/en/accounts/signup/freelancer/';
     this.continueToOnboardingBtn = page.getByRole('button', { name: 'Continue to Onboarding' });
     this.skipStepBtn = page.getByRole('button', { name: 'Skip step →' });
     this.skipAllQuestionsBtn = page.getByRole('button', { name: 'Skip All Questions' });
@@ -27,24 +29,28 @@ export class SignupPage {
     this.completeProfileBtn = page.getByRole('button', { name: 'Complete Profile →' });
   }
 
+  async gotoSignUpPage() {
+    await this.page.goto(this.signUpURLC, { waitUntil: 'domcontentloaded' });
+    await this.firstname.waitFor({ state: 'visible' });
+  }
+
   async verifyElements() {
-    await expect(this.page.getByRole('heading', { name: 'Join Kiedis and connect with' })).toBeVisible();
+    await expect(this.page.getByRole('heading', { name: 'Sign up to Kiedis to continue recruiting these experts' })).toBeVisible();
     await expect(this.page.getByRole('heading', { name: 'Enter your details' })).toBeVisible();
     await expect(this.firstname).toBeVisible();
     await expect(this.lastname).toBeVisible();
     await expect(this.email).toBeVisible();
-    await expect(this.jobTitle).toBeVisible();
+    await expect(this.companyName).toBeVisible();
     await expect(this.newPassword).toBeVisible();
     await expect(this.confirmPassword).toBeVisible();
     await expect(this.termsCheckbox).toBeVisible();
     await expect(this.privacyCheckbox).toBeVisible();
-    await expect(this.createButton).toBeVisible();
-    await expect(this.page.getByRole('link', { name: ' Sign up with LinkedIn' })).toBeVisible();
-    await expect(this.page.getByText('Want to create a company account instead?')).toBeVisible();
+    await expect(this.SignUpBtn).toBeVisible();
+    await expect(this.page.getByText('Want to create a freelancer account instead?')).toBeVisible();
     await expect(this.page.getByText('Already have an account?')).toBeVisible();
-    await expect(this.page.getByRole('link', { name: 'Sign up as Company' })).toBeVisible();
+    await expect(this.page.getByRole('link', { name: 'Sign up as Freelancer' })).toBeVisible();
     await expect(this.page.getByRole('link', { name: 'Sign in here' })).toBeVisible();
-    await this.page.getByRole('link', { name: 'Sign up as Company' }).click();
+    await this.page.getByRole('link', { name: 'Sign up as Freelancer' }).click();
     await this.page.getByRole('button', { name: 'Sign Up', exact: true }).hover();
     await this.page.getByRole('link', { name: 'Sign Up as Freelancer', exact: true }).click();
     await this.page.getByRole('link', { name: 'Sign in here' }).click();
@@ -53,19 +59,22 @@ export class SignupPage {
   async checkAllFields(firstname, lastname, wrongEmail, correctEmail, newPassword, mismatchPwd){
      let validationMsg;
       //for firstname
-      await this.createButton.click();
+      await this.SignUpBtn.click();
       validationMsg = await this.firstname.evaluate(el => el.validationMessage);
       expect(validationMsg).toContain('Please fill out this field');
       await this.firstname.fill(firstname);
 
       //for lastname
-      await this.createButton.click();
+      await this.SignUpBtn.click();
       validationMsg = await this.lastname.evaluate(el => el.validationMessage);
       expect(validationMsg).toContain('Please fill out this field');
       await this.lastname.fill(lastname);
 
+      //Company Name EMPTY - 'This field is required.' appears only after filling out all fields and click Sign Up button
+      await this.companyName.fill('');
+
       // EMAIL EMPTY
-      await this.createButton.click();
+      await this.SignUpBtn.click();
       validationMsg = await this.email.evaluate(el => el.validationMessage);
       expect(validationMsg).toContain('Please fill out this field');
       await this.page.waitForTimeout(2000);
@@ -79,22 +88,22 @@ export class SignupPage {
       await this.email.fill(correctEmail);
       validationMsg = await this.email.evaluate(el => el.validationMessage);
       expect(validationMsg).toBe('');
-      await this.createButton.click();
+      await this.SignUpBtn.click();
 
       //for new password
-      await this.createButton.click();
+      await this.SignUpBtn.click();
       validationMsg = await this.newPassword.evaluate(el => el.validationMessage);
       expect(validationMsg).toContain('Please fill out this field');
       await this.newPassword.fill(newPassword);
      
       //for confirm password
-      await this.createButton.click();
+      await this.SignUpBtn.click();
       validationMsg = await this.confirmPassword.evaluate(el => el.validationMessage);
       expect(validationMsg).toContain('Please fill out this field');
       await this.confirmPassword.fill(mismatchPwd);
       await this.termsCheckbox.click();
       await this.privacyCheckbox.click();
-      await this.createButton.click();
+      await this.SignUpBtn.click();
 
       //password mismtach
       const errorBox = this.page.locator('.bg-error-100');
@@ -104,34 +113,31 @@ export class SignupPage {
       // Validate list item(s)
       const errorItems = errorBox.locator('li');
         // There is only 1 error item in your screenshot
-        await expect(errorItems.first()).toHaveText('You must type the same password each time.');
+        await expect(errorItems.first()).toHaveText('This field is required.');
+        await expect(errorItems.nth(1)).toHaveText('You must type the same password each time.');
   }
 
-  async gotoSignUpPage() {
-    await this.page.goto(this.signUpURLF, { waitUntil: 'domcontentloaded' });
-    await this.firstname.waitFor({ state: 'visible' });
-  }
-
-  async signup(firstname, lastname, email, jobTitle, newPassword, confirmPassword) {
+  async signup(firstname, lastname, companyName, email, newPassword, confirmPassword) {
     // console.log('Signing up with:', { firstname, lastname, email, jobTitle, newPassword, confirmPassword });
     await this.firstname.fill(firstname);
     await this.lastname.fill(lastname);
+    await this.companyName.fill(companyName);
     await this.email.fill(email);
-    await this.jobTitle.fill(jobTitle);
     await this.newPassword.fill(newPassword);
     await this.confirmPassword.fill(confirmPassword);
     await this.termsCheckbox.click();
     await this.privacyCheckbox.click();
-    await this.createButton.click();
+    await this.SignUpBtn.click();
 
     //email confirmation
     await expect(this.page.getByText(`Confirmation email sent to ${email}.`)).toBeVisible();
+    await expect(this.page.getByText('Calendar integration has been set up successfully.')).toBeVisible();
     await expect(this.page.getByRole('heading', { name: 'Verification Email Sent' })).toBeVisible();
-    await expect(this.page.locator('div').filter({ hasText: 'Email sent successfully! We' }).nth(2)).toBeVisible();
+    await expect(this.page.locator('div').filter({ hasText: 'Email sent successfully! We have sent an email verification link to your email address. Please check your email and click the link to verify your account.' }).nth(2)).toBeVisible();
     await expect(this.page.getByText("Didn't receive the email?")).toBeVisible();
     await expect(this.page.getByRole('link', { name: 'Continue to Home' })).toBeVisible();
   }
-  
+
   async gotoConfirmationLink(link, email) {
     const confirmTab = await this.page.context().newPage();
       await confirmTab.goto(link);
@@ -142,69 +148,4 @@ export class SignupPage {
       // Verify second success message
       await expect(confirmTab.getByText(`Successfully signed in as ${email}.`)).toBeVisible();
   }
-
-  async uploadFilePage() {
-    // Headings
-    await expect(this.page.getByText("Enhance Your Profile")).toBeVisible();
-    await expect(this.page.getByText("Upload your CV to provide additional details for better AI optimization")).toBeVisible();
-
-    // Why upload section
-    await expect(this.page.getByText("Why upload your CV?")).toBeVisible();
-    await expect(this.page.getByText("Include detailed project descriptions and achievements")).toBeVisible();
-    await expect(this.page.getByText("Add technical skills and certifications not on LinkedIn")).toBeVisible();
-    await expect(this.page.getByText("Improve AI matching accuracy by up to 40%")).toBeVisible();
-    await this.uploadBtn.click();
-    await expect(this.page.getByRole('heading', { name: 'Analyzing CV' })).toBeVisible();
-    await this.page.waitForTimeout(18000);
-
-    //Success upload CV
-    await expect(this.page.getByRole('heading', { name: 'AI is Creating Your Profile' })).toBeVisible();
-    await expect(this.page.getByText('Our system is analyzing your')).toBeVisible();
-    await expect(this.page.locator('#status-container div').filter({ hasText: 'AI Analysis Complete!' })).toBeVisible();
-    await expect(this.page.getByRole('heading', { name: 'CV Analysis Complete' })).toBeVisible();
-    await expect(this.page.getByText('Found relevant projects and')).toBeVisible();
-    await this.continueToOnboardingBtn.click({ timeout: 60000 });
-    // await this.page.waitForTimeout(600000); // Wait for 10 minutes to ensure processing is complete
-
-    // Verify Onboarding page
-    await this.page.waitForLoadState('domcontentloaded'); 
-    // await expect(this.page.getByRole('heading', { name: /refine your details/i })).toBeVisible({ timeout: 600000 });
-    
-    // Wait for the real onboarding container
-    await this.page.locator('h1.text-2xl.font-bold.text-gray-900')
-        .filter({ hasText: 'Refine your details' })
-        .waitFor({ timeout: 60000 });
-
-    // Now assert it
-    await expect(this.page.getByRole('heading', { name: /refine your details/i })).toBeVisible();
-    
-    await expect(this.page.getByText('Help us match you with better opportunities by filling in any missing details. The more complete your profile, the more accurate our job recommendations will be. You can always come back to complete any skipped questions later.')).toBeVisible();
-    await expect(this.skipStepBtn).toBeVisible();
-    await expect(this.skipAllQuestionsBtn).toBeVisible();
-    await expect(this.continueBtn).toBeVisible();
-
-    //Check if buttons are working
-    await this.skipStepBtn.click();
-    await this.backBtn.click();
-    await this.skipAllQuestionsBtn.click();
-    await this.backBtn.click();
-    await this.continueBtn.click();
-
-    // Verify Daily Rate and Availability page
-    await expect(this.page.getByRole('heading', { name: 'Set your daily rate and' })).toBeVisible();
-    await this.page.getByText('Help us match you with the right opportunities by setting your preferred daily rate and current availability. You can always adjust these settings later in your profile.').isVisible();
-    await expect(this.page.getByRole('heading', { name: 'Daily Rate', exact: true })).toBeVisible();
-    await expect(this.page.getByText('Set the amount you typically')).toBeVisible();
-    await this.page.getByPlaceholder('Enter your rate').fill('200');
-    await expect(this.page.getByRole('heading', { name: 'Availability', exact: true })).toBeVisible();
-    await expect(this.page.getByText('Let us know if you\'re')).toBeVisible();
-    await this.imAvailableRadio.check();
-    await this.notAvailableRadio.check();
-    await this.imAvailableRadio.check();
-    await this.nextBtn.click();
-    // await this.completeProfileBtn.click();
-    // await this.skipAllQuestionsBtn.click({ timeout: 100000 });
-    // await this.nextBtn.click({ timeout: 60000 });
-  }
 }
-
