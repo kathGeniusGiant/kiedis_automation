@@ -1,0 +1,9 @@
+{
+  "landingURL": "https://test.kiedis.com/en/landing/",
+  "signInURL": "https://test.kiedis.com/en/accounts/login/",
+  "freelancerEmail": "qaautomation@yopmail.com",
+  "companyEmail": "qacompany@yopmail.com",
+  "testWrongEmailFormat": "wrongemailformatyopmail.com",
+  "testPassword": "Test@123",
+  "testWrongPassword": "Test@098"
+}

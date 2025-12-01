@@ -1,8 +1,12 @@
 import { expect } from '@playwright/test';
 
 export class SigninPage {
-  constructor(page) {
+  constructor(page, data) {
     this.page = page;
+
+    // Data from JSON
+    this.landingURL = data?.landingURL || 'https://test.kiedis.com/en/landing/';
+    this.signInURL = data?.signInURL || 'https://test.kiedis.com/en/accounts/login/';
 
     // Define locators
     this.emailOrUN = page.getByPlaceholder('Enter your email or username');
@@ -13,16 +17,13 @@ export class SigninPage {
     this.btnSignIn = page.getByRole('button', { name: 'Sign In' });
     this.btnSignUp = page.getByRole('button', { name: 'Sign Up' });
     this.linkSignIn = page.getByRole('link', { name: 'Sign In', exact: true });
-    this.btnSignInwLinkIn = page.getByText('Sign In with LinkedIn' );
+    this.btnSignInwLinkIn = page.getByText('Sign In with LinkedIn');
     this.Signuphere = page.getByRole('link', { name: 'Sign up here' });
     this.frgtPss = page.getByRole('link', { name: 'Forgot your password?' });
-    this.landingURL = 'https://test.kiedis.com/en/landing/';
-    this.signInURL = 'https://test.kiedis.com/en/accounts/login/';
-    this.linkSignout = page.getByRole('link', { name: 'Sign Out' })
+    this.linkSignout = page.getByRole('link', { name: 'Sign Out' });
   }
 
   async gotoLandingPage() {
-    // await page.goto(this.signInURL);
     await this.page.goto(this.landingURL, { waitUntil: 'domcontentloaded' });
     await this.linkSignIn.click();
   }
@@ -47,35 +48,35 @@ export class SigninPage {
     await this.page.click('button[type="submit"]');
     // Main error container
     const errorBox = this.page.locator('.bg-error-100');
-      await expect(errorBox).toBeVisible();
+    await expect(errorBox).toBeVisible();
       // List items inside the error box
     const errorItems = errorBox.locator('li');
-      await expect(errorItems.nth(0)).toHaveText('This field is required.');
-      await expect(errorItems.nth(1)).toHaveText('This field is required.');
+    await expect(errorItems.nth(0)).toHaveText('This field is required.');
+    await expect(errorItems.nth(1)).toHaveText('This field is required.');
   }
 
   async wrongEmailFormat() {
     await this.btnSignIn.click();
-      const errorBox = this.page.locator('.bg-error-100');
-        await expect(errorBox).toBeVisible();
-        // Validate header text
-        await expect(errorBox.locator('h3')).toHaveText('Please correct the following errors:');
-        // Validate list item(s)
-      const errorItems = errorBox.locator('li');
-        // There is only 1 error item in your screenshot
-        await expect(errorItems.first()).toHaveText('Enter a valid email address.');
+    const errorBox = this.page.locator('.bg-error-100');
+    await expect(errorBox).toBeVisible();
+    // Validate header text
+    await expect(errorBox.locator('h3')).toHaveText('Please correct the following errors:');
+    // Validate list item(s)
+    const errorItems = errorBox.locator('li');
+    // There is only 1 error item in your screenshot
+    await expect(errorItems.first()).toHaveText('Enter a valid email address.');
   }
 
   async incorrectCredentials() {
     await this.btnSignIn.click();
-      const errorBox = this.page.locator('.bg-error-100');
-        await expect(errorBox).toBeVisible();
-        // Validate header text
-        await expect(errorBox.locator('h3')).toHaveText('Please correct the following errors:');
-        // Validate list item(s)
-      const errorItems = errorBox.locator('li');
-        // There is only 1 error item in your screenshot
-        await expect(errorItems.first()).toHaveText('The email address and/or password you specified are not correct.');
+    const errorBox = this.page.locator('.bg-error-100');
+    await expect(errorBox).toBeVisible();
+    // Validate header text
+    await expect(errorBox.locator('h3')).toHaveText('Please correct the following errors:');
+    // Validate list item(s)
+    const errorItems = errorBox.locator('li');
+    // There is only 1 error item in your screenshot
+    await expect(errorItems.first()).toHaveText('The email address and/or password you specified are not correct.');
   }
 
   async signin(emailOrUN, pwd) {

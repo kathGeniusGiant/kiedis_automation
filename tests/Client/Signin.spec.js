@@ -1,23 +1,24 @@
-  import { test, expect } from '@playwright/test';
-  import { SigninPage } from '../../pages/signin.js';
+import { test, expect } from '@playwright/test';
+import { SigninPage } from '../../pages/signin.js';
+import fs from 'fs';
+import path from 'path';
 
-  const TEST_EMAIL = 'qacompany@yopmail.com';
-  const TEST_PASSWORD = 'Test@123';
+// Load test data from JSON
+const dataPath = path.join(__dirname, '../../fixtures/signinData.json');
+const testData = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
 
-  test.describe('Signin', () => {
-
-    let signin;
+test.describe('Signin', () => {
+  let signin;
 
   test.beforeEach(async ({ page }) => {
-      // Runs before each test in this suite
-      signin = new SigninPage(page);
-        await page.setViewportSize({ width: 1370, height: 735 });
-        await signin.gotoLandingPage();
-    });
-
-  test('Successfull login and log out', async ({ page }) => {
-    await signin.signin(TEST_EMAIL, TEST_PASSWORD);
-    await signin.signout();
+    // Pass JSON data to SigninPage
+    signin = new SigninPage(page, testData);
+    await page.setViewportSize({ width: 1370, height: 735 });
+    await signin.gotoLandingPage();
   });
 
+  test('Successful login and logout', async () => {
+    await signin.signin(testData.companyEmail, testData.testPassword);
+    await signin.signout();
+  });
 });

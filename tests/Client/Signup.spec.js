@@ -1,46 +1,61 @@
-  import { test, expect } from '@playwright/test';
-  import { clientSignupPage } from '../../pages/Client/signup.js';
-//   import { SignupPage } from '../../pages/signup.js';
-//   import { Signin, SigninPage } from '../..signin.js';
-  import MailSlurp from "mailslurp-client";
-  import { text } from 'stream/consumers';
-  import { getEmail, getConfirmationLink, createInbox } from '../../pages/storeEmail.js';
+import { test, expect } from '@playwright/test';
+import { clientSignupPage } from '../../pages/Client/signup.js';
+import MailSlurp from "mailslurp-client";
+import { getEmail, getConfirmationLink, createInbox } from '../../pages/storeEmail.js';
 
-  const password = 'QaPassword1!'
-  const firstname = 'QA';
-  const lastname = 'Tester';
-  const companyName = 'Automation Company';
-  const wrongEmail = 'wrongemailfromatyopmail.com';
-  const correctEmail = 'qatester@yopmail.com';
-  const mismatchPwd = 'mismatchpass';
+const password = 'QaPassword1!';
+const firstname = 'QA';
+const lastname = 'Tester';
+const companyName = 'Automation Company';
 
-  test.describe('Signup and Profile page', () => {
-    // let signup;
-    let clientSignup;
-    //   let signin;
-      let emailAddress = ''
-    test.beforeEach(async ({ page }) => {
-        // Runs before each test in this suite
-        // signup = new SignupPage(page);
-        clientSignup = new clientSignupPage(page);
-        // signin = new SigninPage(page);
-        // signin = new SigninPage(page);
-        await page.setViewportSize({ width: 1370, height: 735 });
-        await clientSignup.gotoSignUpPage();
-    });
+const wrongEmail = 'wrongemailfromatyopmail.com';
+const correctEmail = 'qatester@yopmail.com';
+const mismatchPwd = 'mismatchpass';
 
-    test('Verify elements in Signup page', async ({ page }) => {
-      await clientSignup.verifyElements();
-    });
+test.describe('Signup and Profile Page', () => {
+  let clientSignup;
+  let emailAddress = '';
 
-    test('Check validation error for empty input, wrong email and password mismatch', async ({ page }) => {
-        await clientSignup.checkAllFields(firstname, lastname, wrongEmail, correctEmail, password, mismatchPwd);
-    });
+  test.beforeEach(async ({ page }) => {
+    clientSignup = new clientSignupPage(page);
 
-    test('Successfull signup and email confirmation', async ({ page }) => {
-          emailAddress = await createInbox();
-          await clientSignup.signup(firstname, lastname, companyName, emailAddress, password, password);
-          const confirmationLink = await getConfirmationLink();
-            await clientSignup.gotoConfirmationLink(confirmationLink, emailAddress)
-    });
+    await page.setViewportSize({ width: 1370, height: 735 });
+    await clientSignup.gotoSignUpPage();
   });
+
+  test('Verify elements in Signup page', async () => {
+    await clientSignup.verifyElements();
+  });
+
+  test('Check validation errors (empty input, wrong email, mismatch password)', async () => {
+    await clientSignup.checkAllFields(
+      firstname,
+      lastname,
+      wrongEmail,
+      correctEmail,
+      password,
+      mismatchPwd
+    );
+  });
+
+  test('Successful signup and email confirmation', async () => {
+    // Generate disposable inbox
+    emailAddress = await createInbox();
+
+    // Perform signup
+    await clientSignup.signup(
+      firstname,
+      lastname,
+      companyName,
+      emailAddress,
+      password,
+      password
+    );
+
+    // Wait & fetch confirmation link
+    const confirmationLink = await getConfirmationLink();
+
+    // Navigate to confirmation
+    await clientSignup.gotoConfirmationLink(confirmationLink, emailAddress);
+  });
+});

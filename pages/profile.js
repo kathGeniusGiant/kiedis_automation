@@ -74,9 +74,10 @@ export class ProfilePage {
     this.inputFieldOfStudy = page.getByRole('textbox', { name: 'e.g., Computer Science' });
     this.inputInstitution = page.getByRole('textbox', { name: 'e.g., University of Technology' });
     this.editBtnNewlyAddedEduc = page.getByRole('button', { name: 'Edit' }).nth(4);
-    this.deleteNewlyAddedEducBtn = page.getByRole('button').filter({ hasText: /^$/ }).nth(1);
+    this.deleteNewlyAddedEducBtn = page.getByRole('button').filter({ hasText: /^$/ }).nth(2);
   }
 
+  // Navigation
   async gotoProfilePage() {
     await this.linkProfile.click();
     await expect(this.page).toHaveURL(this.profileUrl);
@@ -102,19 +103,20 @@ export class ProfilePage {
     await expect(this.educationSection).toBeVisible();
   }
 
+  // Profile image
   async uploadImage() {
-  const filePath = 'C:/Users/LENOVO/Documents/pic.jpg';
-  await this.page.setInputFiles('input[type="file"][accept="image/*"]', filePath);
-  await expect(this.page.locator('div').filter({ hasText: 'Avatar updated successfully!×' }).nth(2)).toBeVisible();
+    const filePath = 'C:/Users/LENOVO/Documents/pic.jpg';
+    await this.page.setInputFiles('input[type="file"][accept="image/*"]', filePath);
+    await expect(this.page.locator('div').filter({ hasText: 'Avatar updated successfully!×' }).nth(2)).toBeVisible();
   }
 
+  // Edit profile validations
   async editProfileEmptyInput() {
-   //Hover to show Edit button and click
-   let card = this.page.locator('.group', { hasText: "QA Testers" });
-      await card.hover();   // shows the Edit button
-      await card.getByRole('button', { name: 'Edit' }).hover();
-      await expect(this.HeadingEditbtn).toBeVisible();
-      await this.HeadingEditbtn.click();
+    let card = this.page.locator('.group', { hasText: "QA Testers" });
+    await card.hover();   // shows the Edit button
+    await card.getByRole('button', { name: 'Edit' }).hover();
+    await expect(this.HeadingEditbtn).toBeVisible();
+    await this.HeadingEditbtn.click();
 
     // Assert Edit Profile modal elements
     await expect(this.page.getByRole('heading', { name: 'Edit Profile' })).toBeVisible();
@@ -129,6 +131,7 @@ export class ProfilePage {
     await this.rateInput.fill('');//incorrect validation error appears
     await this.cityInput.fill('');
     await this.phoneInput.fill('');
+
     const nameError = this.page.locator('p.text-xs.text-error-500', { hasText: 'Name is required' });
     await expect(nameError).toBeVisible();
     const cityError = this.page.locator('p.text-xs.text-error-500', { hasText: 'City is required' });
@@ -136,17 +139,18 @@ export class ProfilePage {
     const phoneError = this.page.locator('p.text-xs.text-error-500', { hasText: 'Phone Number is required' });
     await expect(phoneError).toBeVisible();
 
-
     //Input two letters on fullname field to save changes button if disabled
     await this.nameInput.fill('AB');
     await expect(this.saveChangesBtn).toBeDisabled();
   }
+
+  // Edit profile details
   async editDetails() {
     let card = this.page.locator('.group', { hasText: "QA Testers" });
-      await card.hover();   // shows the Edit button
-      await this.HeadingEditbtn.hover(); 
-      await expect(this.HeadingEditbtn).toBeVisible();
-      await this.HeadingEditbtn.click();
+    await card.hover();   // shows the Edit button
+    await this.HeadingEditbtn.hover(); 
+    await expect(this.HeadingEditbtn).toBeVisible();
+    await this.HeadingEditbtn.click();
 
     //Edit details and verify changes
     await this.nameInput.fill('QA Testers Edit');
@@ -232,7 +236,7 @@ export class ProfilePage {
     await this.addSkillBtn.click();
     
     this.closeButton = this.page.locator('button[data-headlessui-state] svg');
-      await this.closeButton.click();
+    await this.closeButton.click();
 
     await this.addSkillBtn.click();
     await this.cancelBtn.click();
@@ -320,7 +324,7 @@ export class ProfilePage {
     //Verify add item modal
     await this.addNewItemWorkExpBtn.click();
     const closeButton = this.page.locator('button[data-headlessui-state] svg');
-      await closeButton.click();
+    await closeButton.click();
 
     await this.addNewItemWorkExpBtn.click();
     await this.cancelBtn.click();
@@ -335,10 +339,10 @@ export class ProfilePage {
     await this.textBoxLocation.click();
     await this.textBoxPositionTitle.fill('');
     let errorMessage = this.page.locator('p.text-error-500', {hasText: 'Position Title is required'});
-      await expect(errorMessage).toBeVisible();
+    await expect(errorMessage).toBeVisible();
     await this.textBoxCompany.fill('');
-        errorMessage = this.page.locator('p.text-error-500', {hasText: 'Company is required'});
-      await expect(errorMessage).toBeVisible();
+    errorMessage = this.page.locator('p.text-error-500', {hasText: 'Company is required'});
+    await expect(errorMessage).toBeVisible();
   }
 
   async addedWorkExperienceSuccessfully(Position_Title, Company, Location, Start_Date, End_Date, Role_Description){
@@ -371,11 +375,9 @@ export class ProfilePage {
   }
 
   async editWorkExperience() {
-    const qaTesterRow = this.page.locator("div.grid.grid-cols-3.gap-6.flex-1").filter({
-      has: this.page.getByText("QA Tester"),
-      }).filter({
-      has: this.page.getByText("Automation Company")
-    });
+    const qaTesterRow = this.page.locator("div.grid.grid-cols-3.gap-6.flex-1")
+    .filter({has: this.page.getByText("QA Tester"),})
+    .filter({has: this.page.getByText("Automation Company")});
 
     // Make sure only 1 row matched
     await expect(qaTesterRow).toHaveCount(1);
@@ -393,17 +395,15 @@ export class ProfilePage {
     await this.textBoxDescribeYourRole.fill('Testing automation for web applications. Edited');
     await this.saveChangesBtn.click();
     await expect(this.page.locator('div').filter({ hasText: 'Saved successfully×' }).nth(2)).toBeVisible();
-}
+  }
  
   async deleteWorkExperience(Position_Title, Company) {
-    const qaTesterRowEdited = this.page.locator("div.grid.grid-cols-3.gap-6.flex-1").filter({
-      has: this.page.getByText("QA Tester Edited"),
-      }).filter({
-      has: this.page.getByText("Automation Company Edited")
-    });
+    const qaTesterRowEdited = this.page.locator("div.grid.grid-cols-3.gap-6.flex-1")
+    .filter({has: this.page.getByText("QA Tester Edited"),})
+    .filter({has: this.page.getByText("Automation Company Edited")});
 
-      // Make sure only 1 row matched
-      await expect(qaTesterRowEdited).toHaveCount(1);
+    // Make sure only 1 row matched
+    await expect(qaTesterRowEdited).toHaveCount(1);
 
     // Hover the QA Tester row
     await qaTesterRowEdited.hover();
@@ -437,13 +437,13 @@ export class ProfilePage {
     await this.textBoxLocation.click();
     await this.inputDegree.fill('');
     let errorMessage = this.page.locator('p.text-error-500', {hasText: 'Degree/Qualification is required'});
-      await expect(errorMessage).toBeVisible();
+    await expect(errorMessage).toBeVisible();
     await this.inputFieldOfStudy.fill('');
-        errorMessage = this.page.locator('p.text-error-500', {hasText: 'Field of Study is required'});
-      await expect(errorMessage).toBeVisible();
-      await this.inputInstitution.fill('');
-        errorMessage = this.page.locator('p.text-error-500', {hasText: 'Institution is required'});
-      await expect(errorMessage).toBeVisible();
+    errorMessage = this.page.locator('p.text-error-500', {hasText: 'Field of Study is required'});
+    await expect(errorMessage).toBeVisible();
+    await this.inputInstitution.fill('');
+    errorMessage = this.page.locator('p.text-error-500', {hasText: 'Institution is required'});
+    await expect(errorMessage).toBeVisible();
   }
 
   async addedEducationSuccessfully(Degree, Field_of_Study, Institution, Location, Start_Date, End_Date){
