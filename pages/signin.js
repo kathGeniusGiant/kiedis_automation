@@ -1,12 +1,13 @@
 import { expect } from '@playwright/test';
+import links from '../fixtures/links.json';
 
 export class SigninPage {
   constructor(page, data) {
     this.page = page;
 
     // Data from JSON
-    this.landingURL = data?.landingURL || 'https://test.kiedis.com/en/landing/';
-    this.signInURL = data?.signInURL || 'https://test.kiedis.com/en/accounts/login/';
+    this.landingURL = links.landingURL;
+    this.signInURL = links.signInURL;
 
     // Define locators
     this.emailOrUN = page.getByPlaceholder('Enter your email or username');

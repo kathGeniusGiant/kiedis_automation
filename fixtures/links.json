@@ -1,0 +1,16 @@
+{
+  "landingURL": "https://test.kiedis.com/en/landing/",
+  "signInURL": "https://test.kiedis.com/en/accounts/login/",
+  "dashboardURL": "https://test.kiedis.com/en/client/dashboard/",
+  "createJobDescriptionLink": "https://test.kiedis.com/en/client/create-job-description/",
+  "ImpressumURL": "https://test.kiedis.com/en/impressum",
+  "PrivacyPolicyURL": "https://test.kiedis.com/en/privacy-policy",
+  "TermsOfServiceURL": "https://test.kiedis.com/en/terms-of-service",
+  "ContactURL": "https://test.kiedis.com/en/contact",
+  "dashboardURLClient": "https://test.kiedis.com/en/client/dashboard/",
+  "dashboardURLFreelancer": "https://test.kiedis.com/en/freelancer/dashboard/",
+  "bookFrequencyURL": "https://cal.com/help/event-types/booking-frequency",
+  "BookingLimitURL": "https://cal.com/help/event-types/booker-active-booking-limit",
+  "LimitFutureBookingURL": "https://cal.com/help/event-types/limit-future-bookings",
+  "bookingQuestionsURL": "https://cal.com/help/event-types/booking-questions"
+}

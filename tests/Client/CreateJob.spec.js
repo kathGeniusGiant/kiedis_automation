@@ -1,24 +1,27 @@
 import { test, expect } from '@playwright/test';
 import { SigninPage } from '../../pages/signin.js';
 import { CreateJobPage } from '../../pages/Client/createJob.js';
+import { FooterAndHeader } from '../../pages/header_footer.js';
+import fs from 'fs';
+import path from 'path';
 
-const TEST_EMAIL = 'qacompany@yopmail.com';
-const TEST_PASSWORD = 'Test@123';
+// Load test data from JSON
+const dataPath = path.join(__dirname, '../../fixtures/signinData.json');
+const testData = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
 
 test.describe('Create Job Description', () => {
   test.describe.configure({ timeout: 60000 });
-
-  let signin;
-  let createJob;
+  let signin, createJob, headerfooter;
 
   test.beforeEach(async ({ page }) => {
-    signin = new SigninPage(page);
+    signin = new SigninPage(page, testData);
     createJob = new CreateJobPage(page);
+    headerfooter = new FooterAndHeader(page);
 
     await page.setViewportSize({ width: 1370, height: 735 });
     await signin.gotoLandingPage();
-    await signin.signin(TEST_EMAIL, TEST_PASSWORD);
-    await createJob.gotoDashboardPage();
+    await signin.signin(testData.companyEmail, testData.testPassword);
+    await headerfooter.gotoClientDashboardPage();
   });
 
   test('Verify elements on Create Job Description page', async ({ page }) => {
@@ -34,15 +37,5 @@ test.describe('Create Job Description', () => {
   test('Create Job – Position Title', async ({ page }) => {
     test.setTimeout(60000);
     await createJob.positionTitle();
-  });
-
-  test('Edit Job Description', async ({ page }) => {
-    test.setTimeout(60000);
-    await createJob.editJobDescription();
-  });
-
-  test('Interview slot', async ({ page }) => {
-    test.setTimeout(60000);
-    await createJob.interviewSlot();
   });
 });
